@@ -12,9 +12,9 @@ if ENV['DOCKER_USERNAME'] || ENV['DOCKER_EMAIL'] || ENV['DOCKER_PASSWORD']
   unless ENV['DOCKER_USERNAME'] && ENV['DOCKER_EMAIL'] && ENV['DOCKER_PASSWORD']
     raise "Need all of DOCKER_USERNAME, DOCKER_EMAIL, DOCKER_PASSWORD"
   end
-  Docker.autenticate! 'username' => ENV['DOCKER_USERNAME'],
-                      'email' => ENV['DOCKER_EMAIL'],
-                      'password' => ENV['DOCKER_PASSWORD']
+  Docker.authenticate! 'username' => ENV['DOCKER_USERNAME'],
+                       'email' => ENV['DOCKER_EMAIL'],
+                       'password' => ENV['DOCKER_PASSWORD']
 else
   Docker.creds = {}
 end
