@@ -3,12 +3,12 @@ GEM
   specs:
     archive-tar-minitar (0.5.2)
     coderay (1.1.0)
-    docker-api (1.7.3)
+    docker-api (1.7.4)
       archive-tar-minitar
       excon (>= 0.28)
       json
     erubis (2.7.0)
-    excon (0.29.0)
+    excon (0.30.0)
     json (1.8.1)
     method_source (0.8.2)
     minigit (0.0.4)
