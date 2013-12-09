@@ -1,37 +1,59 @@
 require 'bundler/setup'
 
 require 'docker'
-require 'erubis'
 require 'minigit'
 
-ENV['REGISTRY'] ||= 'localhost:5000'
-ENV['PUBLIC_REGISTRY'] ||= ENV['REGISTRY']
+ENV['INTERNAL_REGISTRY'] ||= ENV['REGISTRY'] || 'localhost:5000'
+ENV['PUBLIC_REGISTRY'] ||= ENV['REGISTRY'] || '3ofcoins'
+ENV['REGISTRY'] ||= 'localhost:5001'
 ENV['MAINTAINER'] ||= 'Maciej Pasternacki <maciej@3ofcoins.net>'
 
-class DockerImageTask < Rake::Task
-  def initialize(*)
-    super
-    enhance([dockerfile_task], &:build!)
-    self.comment = "#{repository}:#{tag}"
+if ENV['DOCKER_USERNAME'] || ENV['DOCKER_EMAIL'] || ENV['DOCKER_PASSWORD']
+  unless ENV['DOCKER_USERNAME'] && ENV['DOCKER_EMAIL'] && ENV['DOCKER_PASSWORD']
+    raise "Need all of DOCKER_USERNAME, DOCKER_EMAIL, DOCKER_PASSWORD"
   end
+  Docker.autenticate! 'username' => ENV['DOCKER_USERNAME'],
+                      'email' => ENV['DOCKER_EMAIL'],
+                      'password' => ENV['DOCKER_PASSWORD']
+else
+  Docker.creds = {}
+end
 
-  def dockerfile_task
-    if File.exist? dockerfile_template
-      Rake::FileTask.define_task(dockerfile => dockerfile_template) do |t|
-        puts "# rendering #{t}"
-        File.write(dockerfile, Erubis::Eruby.new(File.read(dockerfile_template)).result(binding))
-      end
-    else
-      Rake::FileTask.define_task(dockerfile)
-    end
+class DockerImageTask < Rake::Task
+  include FileUtils
+
+  def initialize(*args)
+    super
+    enhance(&:build!)
+    repo_task = Rake::Task.define_task(repository => self)
+    repo_task.comment = tagged
   end
 
   def build!(task=nil)
     puts "# Building #{self}"
-    @image = Docker::Image.build_from_dir(name)
-    puts "# tag #{repository}:#{tag} #{repository}:latest"
-    image.tag('repo' => "#{repository}:#{tag}")
+    if ENV['COMPILE']
+      Dir.chdir(name) do
+        sh "#{File.join(File.dirname(__FILE__), 'script/docker-compile.pl')} | tee compile.log"
+      end
+      iid = File.read(File.join(name, 'compile.log')).lines.last.strip
+      @image = Docker::Image.all.find { |img| img.id == iid }
+    else
+      @image = Docker::Image.build_from_dir(name)
+    end
+
+    if tag != ''
+      puts "# tag #{repository}:#{tag}"
+      image.tag('repo' => repository, 'tag' => tag)
+    end
+
+    puts "# tag #{repository}:latest"
     image.tag('repo' => repository)
+
+    if ENV['COMPILE']
+      puts "# push #{repository}"
+      image.info['Repository'] = repository
+      image.push({})
+    end
   end
 
   def needed?
@@ -39,23 +61,31 @@ class DockerImageTask < Rake::Task
   end
 
   def image
-    @image ||= Docker::Image.all.find { |img| img.info['Repository'] == repository && img.info['tag'] == sha1 }
+    @image ||= Docker::Image.all.find { |img| "#{img.info['Repository']}:#{img.info['Tag']}" == tagged }
   end
 
   def tag
     @docker_tag ||= sha1
   end
 
+  def registry
+    case name
+    when /^internal\// then ENV['INTERNAL_REGISTRY']
+    when /^public\//   then ENV['PUBLIC_REGISTRY']
+    else ENV['REGISTRY']
+    end
+  end
+
   def repository
-    "#{ENV['REGISTRY']}/#{File.basename(name)}"
+    "#{registry}/#{File.basename(name)}"
+  end
+
+  def tagged
+    "#{repository}:#{tag}"
   end
 
   def dockerfile
     "#{name}/Dockerfile"
-  end
-
-  def dockerfile_template
-    "#{dockerfile}.erb"
   end
 
   def sha1
@@ -74,8 +104,11 @@ end
 desc 'All Docker images'
 task :images
 
-Dir['**/Dockerfile*'].map { |df| File.dirname(df) }.uniq.each do |dir|
-  task :images => DockerImageTask.define_task(dir)
+Dir['**/Dockerfile'].each do |df|
+  deps = [ file(df) ]
+  from = File.read(df).lines.grep(/^\s*from\s+/i).first.strip.split(nil, 2)[1]
+  deps << from if from.start_with?(ENV['REGISTRY']) || from.start_with?(ENV['PUBLIC_REGISTRY'])
+  task :images => DockerImageTask.define_task(File::dirname(df) => file(df))
 end
 
 task :pry do
