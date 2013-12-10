@@ -35,8 +35,9 @@ class DockerImageTask < Rake::Task
       Dir.chdir(name) do
         sh "#{File.join(File.dirname(__FILE__), 'script/docker-compile.pl')} | tee compile.log"
       end
-      iid = File.read(File.join(name, 'compile.log')).lines.last.strip
-      @image = Docker::Image.all.find { |img| img.id == iid }
+      iid = Array(File.read(File.join(name, 'compile.log')).lines).last.strip
+      raise "Suspicious image ID #{iid}" unless iid =~ /^[0-9a-f]{6,128}$/
+      @image = Docker::Image.all.find { |img| img.id.start_with?(iid) }
     else
       @image = Docker::Image.build_from_dir(name)
     end
