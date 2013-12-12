@@ -123,5 +123,5 @@ our @commit = ( 'docker', 'commit' );
 push @commit, "-author=$author" if defined $author;
 push @commit, "-run=" . encode_json(\%metadata) if %metadata;
 push @commit, $cid;
-print "*** ", join(' ', @commit), "\n";
+print "*** ", join(' ', @commit), "\n\n";
 exec(@commit);
