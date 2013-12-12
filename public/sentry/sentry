@@ -1,0 +1,49 @@
+#!/bin/sh
+set -e
+exec 2>&1
+
+export LC_ALL=${LC_ALL:-C.UTF-8}
+
+export HOST_IP=`ip route | awk '/^default/ { for ( i=1 ; i<NF ; i++ ) { if ( $i == "via" ) { print $(i+1) } } }'`
+
+# translate linked container's POSTGRES_PORT to PHOST/PGPORT pair
+if [ -n "$POSTGRES_PORT" ] ; then
+    eval "export `echo "$POSTGRES_PORT" | sed -e 's,tcp://,PGHOST=,' -e 's,:, PGPORT=,'`"
+fi
+
+export PGHOST=${PGHOST:-$HOST_IP}
+export PGPORT=${PGPORT:-5432}
+export PGDATABASE=${PGDATABASE:-sentry}
+export PGUSER=${PGUSER:-sentry}
+export PGPASSWORD=${PGPASSWORD:-sentry}
+
+if [ "$1" = "pg_dump" ] ; then
+    shift
+    exec pg_dump "${@}"
+fi
+
+[ -f /etc/sentry/secret ] || openssl rand -base64 64 | tr -d \\n > /etc/sentry/secret
+chown root:sentry /etc/sentry/secret
+chmod 0640 /etc/sentry/secret
+
+sentry () {
+    chpst -u sentry /opt/sentry/bin/sentry --config=/etc/sentry/settings.py "${@}"
+}
+
+sentry upgrade --noinput
+
+sentry shell <<EOF
+from django.contrib.auth.models import User
+
+from django.core.management import call_command
+
+if User.objects.filter(is_superuser=True).exists():
+    print "(superuser found, not creating one)"
+else:
+    print "*** Creating initial superuser 'root' with password 'root'"
+    User.objects.create_superuser('root', 'root@example.com', 'root')
+    call_command('repair', owner='root')
+
+EOF
+
+exec chpst -u sentry /opt/sentry/bin/sentry --config=/etc/sentry/settings.py "${@}"
