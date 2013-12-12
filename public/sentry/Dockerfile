@@ -32,3 +32,4 @@ RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 EXPOSE 9000
 ENTRYPOINT [ "/sentry" ]
+CMD [ "start", "--noupgrade" ]
