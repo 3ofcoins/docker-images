@@ -95,8 +95,8 @@ while ( <DOCKERFILE> ) {
       push @{ $metadata{Env} ||= [] }, "$k=$v";
     }
     when ('VOLUME')     {
-      # This seems to be a NOP in `docker build`.
-      # push @{ $metadata{VolumesFrom} ||= [] }, $args
+      $args =~ s/\s*$//;
+      ($metadata{Volumes} ||= {})->{$args} = {};
     }
   }
 }
