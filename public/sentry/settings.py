@@ -76,7 +76,7 @@ if _redis_url:
     SENTRY_REDIS_OPTIONS = {
         'hosts': {
             0: {
-                'host': _redis_url.host,
+                'host': _redis_url.hostname,
                 'port': _redis_url.port,
                 'db': _redis_db,
             }
