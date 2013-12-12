@@ -33,7 +33,7 @@ sentry () {
 sentry upgrade --noinput
 
 sentry shell <<EOF
-from django.contrib.auth.models import User
+from sentry.models import User
 
 from django.core.management import call_command
 
