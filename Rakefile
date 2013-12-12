@@ -12,6 +12,7 @@ if ENV['DOCKER_USERNAME'] || ENV['DOCKER_EMAIL'] || ENV['DOCKER_PASSWORD']
   unless ENV['DOCKER_USERNAME'] && ENV['DOCKER_EMAIL'] && ENV['DOCKER_PASSWORD']
     raise "Need all of DOCKER_USERNAME, DOCKER_EMAIL, DOCKER_PASSWORD"
   end
+  puts "# Authenticating to the Docker index as #{ENV['DOCKER_USERNAME']}"
   Docker.authenticate! 'username' => ENV['DOCKER_USERNAME'],
                        'email' => ENV['DOCKER_EMAIL'],
                        'password' => ENV['DOCKER_PASSWORD']
@@ -53,7 +54,7 @@ class DockerImageTask < Rake::Task
     if ENV['COMPILE']
       puts "# push #{repository}"
       image.info['Repository'] = repository
-      image.push({})
+      image.push
     end
   end
 
