@@ -17,6 +17,12 @@ export PGDATABASE=${PGDATABASE:-sentry}
 export PGUSER=${PGUSER:-sentry}
 export PGPASSWORD=${PGPASSWORD:-sentry}
 
+if [ -z "$SMTP_HOST" ] ; then
+    export SMTP_HOST=$HOST_IP SMTP_PORT=25
+else
+    export SMTP_PORT=${SMTP_PORT:-587}
+fi
+
 if [ "$1" = "pg_dump" ] ; then
     shift
     exec pg_dump "${@}"

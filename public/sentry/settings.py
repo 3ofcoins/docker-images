@@ -6,7 +6,7 @@ import os, os.path, urlparse
 
 _memcache_url = urlparse.urlparse(os.environ['MEMCACHE_PORT']) if 'MEMCACHE_PORT' in os.environ else None
 _redis_url =    urlparse.urlparse(os.environ['REDIS_PORT'])    if 'REDIS_PORT'    in os.environ else None
-_redis_db = int(os.environ['REDIS_DATABASE']) if os.environ['REDIS_DATABASE'] else 0
+_redis_db = int(os.environ['REDIS_DATABASE']) if 'REDIS_DATABASE' in os.environ else 0
 
 CONF_ROOT = os.path.dirname(__file__)
 
@@ -99,11 +99,8 @@ SENTRY_WEB_OPTIONS = {
     'secure_scheme_headers': {'X-FORWARDED-PROTO': 'https'},
 }
 
-if 'SENTRY_WEB_REMOTE_USER_AUTH' in os.environ:
-    from django.contrib.auth.middleware import RemoteUserMiddleware
-    RemoteUserMiddleware.header = os.environ['SENTRY_WEB_REMOTE_USER_AUTH']
-    
-    MIDDLEWARE_CLASSES += ( 'django.contrib.auth.middleware.RemoteUserMiddleware', )
+if 'REMOTE_USER_HEADER' in os.environ:
+    MIDDLEWARE_CLASSES += ( 'env_remote_user_middleware.EnvRemoteUserMiddleware', )
     AUTHENTICATION_BACKENDS = ( 'django.contrib.auth.backends.RemoteUserBackend', )
 
 ALLOWED_HOSTS = [ '*' ]
@@ -115,17 +112,16 @@ ALLOWED_HOSTS = [ '*' ]
 # For more information check Django's documentation:
 #  https://docs.djangoproject.com/en/1.3/topics/email/?from=olddocs#e-mail-backends
 
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-EMAIL_HOST = 'localhost'
-EMAIL_HOST_PASSWORD = ''
-EMAIL_HOST_USER = ''
-EMAIL_PORT = 25
-EMAIL_USE_TLS = False
+EMAIL_HOST = os.environ['SMTP_HOST']
+EMAIL_HOST_PASSWORD = os.environ.get('SMTP_PASSWORD', '')
+EMAIL_HOST_USER = os.environ.get('SMTP_USER', '')
+EMAIL_PORT = os.environ['SMTP_PORT']
+EMAIL_USE_TLS = 'SMTP_USE_TLS' in os.environ
 
 # The email address to send on behalf of
-SERVER_EMAIL = 'root@localhost'
+SERVER_EMAIL = os.environ.get('EMAIL_FROM', 'root@localhost')
 
 ###########
 ## etc. ##
