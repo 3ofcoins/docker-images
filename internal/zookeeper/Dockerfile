@@ -9,4 +9,5 @@ ADD zoo.cfg /opt/zookeeper/conf/zoo.cfg
 
 USER zookeeper
 WORKDIR /opt/zookeeper
+VOLUME /var/lib/zookeeper
 CMD [ "./bin/zkServer.sh" ]
