@@ -9,4 +9,4 @@ ADD zoo.cfg /opt/zookeeper-3.4.5/conf/zoo.cfg
 USER zookeeper
 WORKDIR /opt/zookeeper-3.4.5
 VOLUME /var/lib/zookeeper
-CMD [ "./bin/zkServer.sh" ]
+CMD [ "./bin/zkServer.sh", "start-foreground" ]
