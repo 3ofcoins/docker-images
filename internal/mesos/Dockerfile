@@ -12,4 +12,5 @@ ADD start /start
 RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 
 USER nobody
+EXPOSE 5050
 CMD [ "/start" ]
