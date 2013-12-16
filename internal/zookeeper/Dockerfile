@@ -10,4 +10,5 @@ ADD start /start
 
 WORKDIR /opt/zookeeper-3.4.5
 VOLUME /var/lib/zookeeper
+EXPOSE 2181
 CMD [ "/start" ]
