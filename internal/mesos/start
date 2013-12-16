@@ -4,5 +4,5 @@ set -e -x
 ZK_BASE="`echo "$ZK_PORT" | sed 's/^tcp:/zk:/'`"
 ZK_PATH="${ZK_PATH:-/mesos}"
 
-ulimit -n 8192
+ulimit -n 4096
 exec /usr/local/sbin/mesos-master --port=5050 --zk="$ZK_BASE$ZK_PATH"
