@@ -1,8 +1,9 @@
 #!/bin/sh
 set -e -x
 
-ZK_BASE="`echo "$ZK_PORT" | sed 's/^tcp:/zk:/'`"
-ZK_PATH="${ZK_PATH:-/mesos}"
+if [ -n "$ZK_ADDR" -o -n "ZK_PORT" ] ; then
+    zookeeper="--zk=${ZK_ADDR:-`echo "$ZK_PORT" | sed 's,^tcp://,,'`}${ZK_PATH:-/mesos}"
+fi
 
 ulimit -n 4096
-exec /usr/local/sbin/mesos-master --port=5050 --zk="$ZK_BASE$ZK_PATH"
+exec /usr/local/sbin/mesos-master --port=5050 --log-dir=/var/log/mesos $zookeeper
