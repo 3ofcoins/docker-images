@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e -x
+set -e
 
 host=${REDIS_HOST:-${REDIS_PORT_6379_TCP_ADDR}}
 port=${REDIS_PORT:-${REDIS_PORT_6379_TCP_PORT}}
@@ -14,7 +14,7 @@ if [ -n "$port" ] ; then
     cmd="$cmd -p $port"
 fi
 
-if [ -n "REDIS_PASSWORD" ] ; then
+if [ -n "$REDIS_PASSWORD" ] ; then
     cmd="$cmd -a $REDIS_PASSWORD"
 fi
 
