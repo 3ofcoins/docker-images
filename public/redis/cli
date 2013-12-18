@@ -4,20 +4,18 @@ set -e
 host=${HOST:-$REDIS_PORT_6379_TCP_ADDR}
 port=${PORT:-$REDIS_PORT_6379_TCP_PORT}
 
-cmd='exec /usr/bin/redis-cli'
+flags=''
 
 if [ -n "$host" ] ; then
-    cmd="$cmd -h $host"
+    flags="$flags -h $host"
 fi
 
 if [ -n "$port" ] ; then
-    cmd="$cmd -p $port"
+    flags="$flags -p $port"
 fi
 
 if [ -n "$REDIS_PASSWORD" ] ; then
-    cmd="$cmd -a $REDIS_PASSWORD"
+    flags="$flags -a $REDIS_PASSWORD"
 fi
 
-cmd="$cmd \"\${@}\""
-
-exec su redis -s /bin/sh -c "$cmd" redis-cli-sh "${@}"
+exec /usr/bin/redis-cli $flags "${@}"
