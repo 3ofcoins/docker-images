@@ -1,0 +1,6 @@
+#!/bin/sh
+set -e -x
+
+ulimit -n ${NOFILES:-4096}
+chown redis:redis /var/lib/redis
+exec su redis -s /bin/sh -c 'exec /usr/bin/redis-server /etc/redis/redis.conf "${@}"' redis-server-sh "${@}"

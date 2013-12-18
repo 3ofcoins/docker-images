@@ -11,8 +11,9 @@ RUN apt-get install --yes redis-server
 
 RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
 ADD redis.conf /etc/redis/redis.conf
-ADD start /start
+ADD server /server
+ADD cli /cli
 
 EXPOSE 6379
 VOLUME /var/lib/redis
-ENTRYPOINT [ "/start" ]
+CMD [ "/server" ]
