@@ -106,7 +106,7 @@ end
 desc 'All Docker images'
 task :images
 
-Dir['**/Dockerfile'].each do |df|
+Dir['internal/*/Dockerfile', 'public/*/Dockerfile'].each do |df|
   deps = [ file(df) ]
   from = File.read(df).lines.grep(/^\s*from\s+/i).first.strip.split(nil, 2)[1]
   deps << from if from.start_with?(ENV['REGISTRY']) || from.start_with?(ENV['PUBLIC_REGISTRY'])
