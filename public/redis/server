@@ -1,11 +1,10 @@
 #!/bin/sh
 set -e -x
 
+master=''
 ulimit -n ${NOFILES:-4096}
-if [ -z "$REDIS_MASTER_PORT" ] ; then
-    master="$(env | awk -F= '/^REDIS_MASTER_(PORT_[0-9]+_TCP_ADDR|IP)=/ { ip=$2 } /^REDIS_MASTER_(PORT_[0-9]+_TCP_)?PORT=/ { port=$2 } END { print "--slaveof", ip, port }')"
-else
-    master=""
+if [ -n "$REDIS_MASTER_PORT" ] ; then
+    master="--slaveof $(echo "$REDIS_MASTER_PORT" | sed 's,^[a-z-]*:/*,, ; s/:/ /')"
 fi
 
 chown redis:redis /var/lib/redis
