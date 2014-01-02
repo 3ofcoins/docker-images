@@ -14,3 +14,5 @@ RUN cd /tmp/setuptools-* && /opt/pyrun/bin/python setup.py install
 RUN cd /tmp/pip-* && /opt/pyrun/bin/python setup.py install
 RUN rm -rf /tmp/setuptools-* /tmp/pip-*
 RUN ln -sfv /opt/pyrun/bin/* /usr/local/bin/
+
+RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
