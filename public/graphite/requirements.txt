@@ -1,5 +1,7 @@
+Twisted<12.0
 carbon==0.9.12
 whisper==0.9.12
 graphite-web==0.9.12
 gunicorn==18.0
 python-memcached==1.53
+django

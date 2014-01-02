@@ -18,6 +18,11 @@ RUN pip install -r /requirements.txt
 ADD carbon.conf /opt/graphite/conf/
 ADD storage-schemas.conf /opt/graphite/conf/
 ADD storage-aggregation.conf /opt/graphite/conf/
+ADD local_settings.py /opt/graphite/webapp/graphite/
+
+ADD env_remote_user_middleware.py /opt/graphite/lib/
+ADD carbon-cache /carbon-cache
+ADD graphite-web /graphite-web
 
 RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/pip* /usr/src/*
 
@@ -25,3 +30,4 @@ VOLUME /opt/graphite/storage
 EXPOSE 2003
 EXPOSE 2003/udp
 EXPOSE 2004
+EXPOSE 8080
