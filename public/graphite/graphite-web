@@ -3,9 +3,12 @@ set -e -x
 
 cd /opt/graphite/webapp/graphite
 
-[ -f /opt/graphite/conf/secret ] || openssl rand -base64 64 | tr -d \\n > /opt/graphite/conf/secret
-chown root:graphite /opt/graphite/conf/secret
-chmod 0640 /opt/graphite/conf/secret
+if ! [ -f /opt/graphite/conf/secret ] ; then
+    SECRET_KEY="${SECRET_KEY:-`openssl rand -base64 64 | tr -d \\n`}"
+    echo "$SECRET_KEY" > /opt/graphite/conf/secret
+    chown root:graphite /opt/graphite/conf/secret
+    chmod 0640 /opt/graphite/conf/secret
+fi
 
 python2.7 manage.py syncdb --noinput
 chown graphite:graphite /opt/graphite/storage/graphite.db

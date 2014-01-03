@@ -4,7 +4,7 @@ FROM ubuntu:12.04
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
 RUN apt-get update --yes && apt-get upgrade --yes
-RUN apt-get install --yes build-essential python2.7-dev python-cairo
+RUN apt-get install --yes build-essential python2.7-dev python-cairo openssl
 RUN useradd --system --home=/opt/graphite/storage graphite
 
 ADD https://pypi.python.org/packages/source/s/setuptools/setuptools-2.0.2.tar.gz /usr/src/
