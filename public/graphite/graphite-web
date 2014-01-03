@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e -x
+set -e
 
 cd /opt/graphite/webapp/graphite
 
@@ -12,5 +12,5 @@ fi
 
 python2.7 manage.py syncdb --noinput
 chown graphite:graphite /opt/graphite/storage/graphite.db
-
+set -x
 exec /usr/local/bin/gunicorn_django -u graphite -g graphite -b 0.0.0.0:8080 /opt/graphite/webapp/graphite/settings.py
