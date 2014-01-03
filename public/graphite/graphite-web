@@ -3,14 +3,8 @@ set -e
 
 cd /opt/graphite/webapp/graphite
 
-if ! [ -f /opt/graphite/conf/secret ] ; then
-    SECRET_KEY="${SECRET_KEY:-`openssl rand -base64 64 | tr -d \\n`}"
-    echo "$SECRET_KEY" > /opt/graphite/conf/secret
-    chown root:graphite /opt/graphite/conf/secret
-    chmod 0640 /opt/graphite/conf/secret
-fi
-
 python2.7 manage.py syncdb --noinput
-chown -R graphite:graphite /opt/graphite/storage/graphite.db /opt/graphite/storage/log/webapp
+mkdir -p /opt/graphite/storage/log/webapp /opt/graphite/storage/var/webapp
+chown -R graphite:graphite /opt/graphite/storage/
 set -x
 exec /usr/local/bin/gunicorn_django -u graphite -g graphite -b 0.0.0.0:8080 /opt/graphite/webapp/graphite/settings.py

@@ -13,7 +13,14 @@ _memcache_url = urlparse.urlparse(os.environ['MEMCACHE_PORT']) if 'MEMCACHE_PORT
 # install. This key is used for salting of hashes used in auth tokens,
 # CRSF middleware, cookie storage, etc. This should be set identically among
 # instances if used behind a load balancer.
-SECRET_KEY = open('/opt/graphite/conf/secret').read().strip()
+if 'SECRET_KEY' in os.environ:
+    SECRET_KEY = os.environ['SECRET_KEY']
+else:
+    keyfile_path = '/opt/graphite/storage/.webapp_secret_key'
+    if not os.path.exists(keyfile_path):
+        with open(keyfile_path, 'w') as keyfile:
+            keyfile.write(os.urandom(48).encode('hex'))
+    SECRET_KEY = open(keyfile_path).read().strip()
 
 
 # In Django 1.5+ set this to the list of hosts your graphite instances is

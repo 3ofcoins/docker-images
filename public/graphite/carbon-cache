@@ -1,7 +1,7 @@
 #!/bin/sh
-set -e -x
+set -e
 
-whisper_root=/opt/graphite/storage/whisper 
-test -d $whisper_root || mkdir -p $whisper_root
-chown graphite:graphite $whisper_root
+mkdir -p /opt/graphite/storage/whisper 
+chown -R graphite:graphite /opt/graphite/storage
+set -x
 exec /opt/graphite/bin/carbon-cache.py --debug start
