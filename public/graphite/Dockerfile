@@ -5,7 +5,8 @@ MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
 RUN apt-get update --yes && apt-get upgrade --yes
 RUN apt-get install --yes build-essential python2.7-dev python-cairo openssl
-RUN useradd --system --home=/opt/graphite/storage graphite
+RUN groupadd -g 999 --system graphite
+RUN useradd -g 999 -u 999 --system --home=/opt/graphite/storage graphite
 
 ADD https://pypi.python.org/packages/source/s/setuptools/setuptools-2.0.2.tar.gz /usr/src/
 ADD https://pypi.python.org/packages/source/p/pip/pip-1.5.tar.gz /usr/src/
