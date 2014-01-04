@@ -21,7 +21,7 @@ ADD storage-schemas.conf /opt/graphite/conf/
 ADD storage-aggregation.conf /opt/graphite/conf/
 ADD local_settings.py /opt/graphite/webapp/graphite/
 
-ADD env_remote_user_middleware.py /opt/graphite/lib/
+ADD env_remote_user_middleware.py /usr/local/lib/python2.7/dist-packages/
 ADD carbon-cache /carbon-cache
 ADD graphite-web /graphite-web
 
