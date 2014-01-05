@@ -104,5 +104,5 @@ Optional Variables:
 , port: 8125
 , backends: [ "./backends/graphite" ]
 , debug: !!process.env.DEBUG
-, legacyNamespace: false
+, graphite: { legacyNamespace: false }
 }
