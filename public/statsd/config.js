@@ -100,7 +100,7 @@ Optional Variables:
 */
 {
   graphitePort: Number(process.env.GRAPHITE_PORT) || Number(process.env.GRAPHITE_PORT_2003_TCP_PORT) || 2003
-, graphiteHost: Number(process.env.GRAPHITE_HOST) || Number(process.env.GRAPHITE_PORT_2003_TCP_ADDR) || undefined
+, graphiteHost: process.env.GRAPHITE_HOST || process.env.GRAPHITE_PORT_2003_TCP_ADDR || undefined
 , port: 8125
 , backends: [ "./backends/graphite" ]
 , debug: !!process.env.DEBUG
