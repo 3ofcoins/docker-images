@@ -1,0 +1,7 @@
+Package: *
+Pin: release o=LP-PPA-brightbox-ruby-ng
+Pin-Priority: -1
+
+Package: ruby* libruby*
+Pin: release o=LP-PPA-brightbox-ruby-ng
+Pin-Priority: 666
