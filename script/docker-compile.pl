@@ -28,8 +28,8 @@ while ( <DOCKERFILE> ) {
   $_ = "$prefix$_";
   $prefix = '';
   if ( /\\$/ ) {
-    s/\\$//;
-    $prefix="$_ ";
+    s/\s*\\$//;
+    $prefix=$_;
     next;
   }
 
