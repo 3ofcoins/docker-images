@@ -90,7 +90,7 @@ while ( <DOCKERFILE> ) {
     when ('USER')       { $metadata{User}       = $args }
     when ('EXPOSE')     { push @{ $metadata{PortSpecs} ||= [] },   split(' ',$args); }
     when ('ENV')        {
-      my ( $k, $v ) = split(/s+/, $args, 2);
+      my ( $k, $v ) = split(/\s+/, $args, 2);
       push @commands, "export $k='$v'";
       push @{ $metadata{Env} ||= [] }, "$k=$v";
     }
