@@ -2,11 +2,7 @@
 FROM ubuntu:12.04
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
-RUN sed 's/main$/main universe/' -i /etc/apt/sources.list
-RUN apt-get update
-RUN apt-get upgrade -y
-
-RUN apt-get install -y python-software-properties
+RUN sed 's/main$/main universe/' -i /etc/apt/sources.list && apt-get update && apt-get install -y python-software-properties
 RUN add-apt-repository ppa:webupd8team/java -y
 
 RUN apt-get update
