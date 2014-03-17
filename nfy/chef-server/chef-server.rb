@@ -1,5 +1,5 @@
 require 'uri'
-_uri = ::URI.parse(ENV['PUBLIC_URL'] || 'http://127.0.0.1:4000/')
+_uri = ::URI.parse(ENV['PUBLIC_URL'] || 'https://127.0.0.1/')
 
 topology "standalone"
 
