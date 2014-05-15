@@ -3,15 +3,8 @@
 FROM ubuntu:12.04
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
-# Basic system preparation
-RUN apt-get update --yes
-RUN apt-get install --yes python-software-properties lsb-release
-RUN add-apt-repository "deb http://archive.ubuntu.com/ubuntu `lsb_release -sc` main universe multiverse"
-RUN apt-get update --yes
-RUN dpkg-divert --local --rename --add /sbin/initctl && ln -s /bin/true /sbin/initctl # needed to install some packages
-RUN apt-get install --yes net-tools # `ip route` is used to find IP of the Docker host
-
 # Prerequisites
+RUN apt-get update --yes
 RUN apt-get install --yes python2.7 python2.7-dev postgresql-client-9.1 libpq-dev ca-certificates runit
 
 # Virtualenv

@@ -3,7 +3,7 @@
 FROM ubuntu:12.04
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
-RUN apt-get update --yes && apt-get upgrade --yes
+RUN apt-get update --yes
 RUN apt-get install --yes openssl zlib1g libsqlite3-0 bzip2 ca-certificates
 
 ADD https://downloads.egenix.com/python/egenix-pyrun-1.3.1-py2.7_ucs2-linux-x86_64.tgz /opt/pyrun/

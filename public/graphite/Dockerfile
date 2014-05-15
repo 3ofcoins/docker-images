@@ -3,7 +3,7 @@
 FROM ubuntu:12.04
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
-RUN apt-get update --yes && apt-get upgrade --yes
+RUN apt-get update --yes
 RUN apt-get install --yes build-essential python2.7-dev python-cairo openssl
 RUN groupadd -g 999 --system graphite
 RUN useradd -g 999 -u 999 --system --home=/opt/graphite/storage graphite
