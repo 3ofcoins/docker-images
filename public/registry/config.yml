@@ -10,7 +10,7 @@ common:
   s3_secure: _env:AWS_S3_SECURE:true
 
   search_backend: sqlalchemy
-  sqlalchemy_index_database: sqlite:////tmp/docker-registry.db
+  sqlalchemy_index_database: "sqlite:////tmp/docker-registry.db"
 
   storage_path: _env:STORAGE_PATH:/registry
   storage: _env:STORAGE:local
@@ -21,8 +21,8 @@ redis:
   cache:
     host: _env:REDIS_PORT_6379_TCP_ADDR
     port: _env:REDIS_PORT_6379_TCP_PORT
-    password: _env:REDIS_PASSWORD:
+    password: "_env:REDIS_PASSWORD:"
   cache_lru: 
     host: _env:REDIS_PORT_6379_TCP_ADDR
     port: _env:REDIS_PORT_6379_TCP_PORT
-    password: _env:REDIS_PASSWORD:
+    password: "_env:REDIS_PASSWORD:"
