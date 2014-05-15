@@ -4,7 +4,11 @@ exec 2>&1
 
 export LC_ALL=${LC_ALL:-C.UTF-8}
 
-echo `ip route | awk '/^default/ { for ( i=1 ; i<NF ; i++ ) { if ( $i == "via" ) { print $(i+1) } } }'` docker-host
+# Default gateway is our Docker host
+gw="$(ip route show to 0/0)"
+gw="${gw#*via }"
+gw="${gw%% *}"
+echo "$gw docker-host" >> /etc/hosts
 
 # translate linked container's POSTGRES_PORT to PHOST/PGPORT pair
 if [ -n "$POSTGRES_PORT" ] ; then
