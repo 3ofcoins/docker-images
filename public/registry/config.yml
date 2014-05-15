@@ -14,6 +14,7 @@ common:
 
   storage_path: _env:STORAGE_PATH:/registry
   storage: _env:STORAGE:local
+  secret_key: _env:SECRET_KEY
 
 default: {}
 
