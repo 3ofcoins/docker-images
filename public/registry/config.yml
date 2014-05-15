@@ -1,23 +1,28 @@
 # The `common' part is automatically included (and possibly overriden by all
 # other flavors)
 common:
-    # Bucket for storage
-    boto_bucket: _env:AWS_S3_BUCKET
+  standalone: true
+  boto_bucket: _env:AWS_S3_BUCKET
+  s3_access_key: _env:AWS_ACCESS_KEY_ID
+  s3_secret_key: _env:AWS_SECRET_ACCESS_KEY
+  s3_bucket: _env:AWS_S3_BUCKET
+  s3_encrypt: _env:AWS_S3_ENCRYPT:false
+  s3_secure: _env:AWS_S3_SECURE:true
 
-    # Amazon S3 Storage Configuration
-    s3_access_key: _env:AWS_ACCESS_KEY_ID
-    s3_secret_key: _env:AWS_SECRET_ACCESS_KEY
-    s3_bucket: _env:AWS_S3_BUCKET
-    s3_encrypt: _env:AWS_S3_ENCRYPT
-    s3_secure: true
+  search_backend: sqlalchemy
+  sqlalchemy_index_database: sqlite:////tmp/docker-registry.db
 
-    secret_key: _env:WORKER_SECRET_KEY
-    standalone: true
+  storage_path: _env:STORAGE_PATH:/registry
+  storage: _env:STORAGE:local
 
-local:
-    storage: local
-    storage_path: /registry
+default: {}
 
-s3:
-    storage: s3
-    storage_path: /registry
+redis:
+  cache:
+    host: _env:REDIS_PORT_6379_TCP_ADDR
+    port: _env:REDIS_PORT_6379_TCP_PORT
+    password: _env:REDIS_PASSWORD:
+  cache_lru: 
+    host: _env:REDIS_PORT_6379_TCP_ADDR
+    port: _env:REDIS_PORT_6379_TCP_PORT
+    password: _env:REDIS_PASSWORD:

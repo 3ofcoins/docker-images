@@ -1,8 +1,15 @@
-from stackbrew/registry
-maintainer Maciej Pasternacki <maciej@pasternacki.net>
+# -*- conf -*-
 
-add config.yml /docker-registry/config.yml
-add run /docker-registry/run
+FROM registry
+MAINTAINER Maciej Pasternacki <maciej@pasternacki.net>
 
-expose 5000
-cmd [ "/docker-registry/run" ]
+RUN install -d -o nobody -g nogroup /registry
+ADD config.yml /docker-registry/config/config.yml
+
+ENV DOCKER_REGISTRY_CONFIG /docker-registry/config/config.yml
+ENV SETTINGS_FLAVOR default
+
+EXPOSE 5000
+WORKDIR /docker-registry
+USER nobody
+CMD [ "docker-registry" ]
