@@ -19,8 +19,8 @@ $tmpcount = 0;
 $prefix = '';
 
 print "*** Working directory: $tmpdir\n" if $ENV{LEAVE_TMPDIR};
-$metadata{Entrypoint} = undef;
 $metadata{Cmd} = undef;
+$metadata{Volumes} = {};
 
 open DOCKERFILE, '<Dockerfile' or die;
 while ( <DOCKERFILE> ) {
@@ -98,7 +98,7 @@ while ( <DOCKERFILE> ) {
     }
     when ('VOLUME')     {
       $args =~ s/\s*$//;
-      ($metadata{Volumes} ||= {})->{$args} = {};
+      $metadata{Volumes}->{$args} = {};
     }
   }
 }
