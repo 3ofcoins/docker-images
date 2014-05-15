@@ -122,6 +122,7 @@ EMAIL_USE_TLS = 'SMTP_USE_TLS' in os.environ
 
 # The email address to send on behalf of
 SERVER_EMAIL = os.environ.get('EMAIL_FROM', 'root@localhost')
+DEFAULT_FROM_EMAIL = os.environ.get('EMAIL_FROM', 'root@localhost')
 
 ###########
 ## etc. ##

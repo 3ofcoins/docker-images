@@ -19,7 +19,7 @@ ADD https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.10.1.tar.g
 RUN python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry && rm -rf /tmp/virtualenv-1.10.1
 
 # Installation of Sentry
-RUN /opt/sentry/bin/pip install 'sentry[postgresql]' psycopg2 python-memcached redis hiredis nydus
+RUN /opt/sentry/bin/pip install 'sentry[postgresql]==6.4.4' psycopg2 python-memcached redis hiredis nydus
 RUN useradd --comment sentry --user-group --no-create-home sentry
 
 # Add this services directory
