@@ -2,10 +2,12 @@
 set -e -x
 
 master=''
-ulimit -n ${NOFILES:-4096}
 if [ -n "$REDIS_MASTER_PORT" ] ; then
-    master="--slaveof $(echo "$REDIS_MASTER_PORT" | sed 's,^[a-z-]*:/*,, ; s/:/ /')"
+    master="--slaveof $REDIS_MASTER_PORT_6379_ADDR $REDIS_MASTER_PORT_6379_PORT"
 fi
 
-chown redis:redis /var/lib/redis
-exec su redis -s /bin/sh -c 'exec /usr/bin/redis-server /etc/redis/redis.conf "${@}"' -- redis-server-sh $master "${@}"
+test -f /var/lib/redis/redis.conf || cp /etc/redis/redis.conf /var/lib/redis/redis.conf
+
+chown -R redis:redis /var/lib/redis
+exec chpst -u redis -o ${NOFILES:-4096} \
+     /usr/bin/redis-server /var/lib/redis/redis.conf $master "${@}"
