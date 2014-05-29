@@ -12,7 +12,7 @@ ADD https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.10.1.tar.g
 RUN python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry && rm -rf /tmp/virtualenv-1.10.1
 
 # Installation of Sentry
-RUN /opt/sentry/bin/pip install 'sentry[postgresql]==6.4.4' hiredis nydus
+RUN /opt/sentry/bin/pip install 'sentry[postgres]==6.4.4' hiredis nydus
 RUN /opt/sentry/bin/pip freeze | tee /opt/sentry/requirements-freeze.txt
 RUN useradd --comment sentry --user-group --no-create-home sentry
 
