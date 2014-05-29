@@ -57,6 +57,7 @@ if _memcache_url:
 if _redis_url and 'CELERY_ALWAYS_EAGER' not in os.environ:
     CELERY_ALWAYS_EAGER = False
     BROKER_URL = 'redis://{0}/{1}'.format(_redis_url.netloc, _redis_db)
+    CELERYBEAT_SCHEDULE_FILENAME = '/var/opt/sentry/celerybeat-schedule'
 
 ####################
 ## Update Buffers ##

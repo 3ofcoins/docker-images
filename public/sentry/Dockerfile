@@ -14,7 +14,7 @@ RUN python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry && rm -rf /tmp/vi
 # Installation of Sentry
 RUN /opt/sentry/bin/pip install 'sentry[postgres]==6.4.4' hiredis nydus
 RUN /opt/sentry/bin/pip freeze | tee /opt/sentry/requirements-freeze.txt
-RUN useradd --comment sentry --user-group --no-create-home sentry
+RUN useradd --comment sentry --user-group --create-home --home /var/opt/sentry sentry
 
 # Add this services directory
 ADD env_remote_user_middleware.py /opt/sentry/local/lib/python2.7/site-packages/
