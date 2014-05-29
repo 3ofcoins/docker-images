@@ -13,6 +13,7 @@ RUN python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry && rm -rf /tmp/vi
 
 # Installation of Sentry
 RUN /opt/sentry/bin/pip install 'sentry[postgresql]==6.4.4' psycopg2 python-memcached redis hiredis nydus
+RUN /opt/sentry/bin/pip freeze | tee /opt/sentry/requirements-freeze.txt
 RUN useradd --comment sentry --user-group --no-create-home sentry
 
 # Add this services directory
