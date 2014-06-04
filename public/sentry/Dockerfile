@@ -1,6 +1,7 @@
 # -*- conf -*-
 
 FROM ubuntu:12.04
+#TAG 6.4.4
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
 # Prerequisites
