@@ -3,28 +3,30 @@ GEM
   specs:
     archive-tar-minitar (0.5.2)
     coderay (1.1.0)
-    docker-api (1.7.4)
+    docker-api (1.11.0)
       archive-tar-minitar
-      excon (>= 0.28)
+      excon (>= 0.34.0)
       json
-    erubis (2.7.0)
-    excon (0.30.0)
+    etcd (0.2.3)
+      mixlib-log
+    excon (0.35.0)
     json (1.8.1)
     method_source (0.8.2)
     minigit (0.0.4)
-    pry (0.9.12.3)
+    mixlib-log (1.6.0)
+    pry (0.9.12.6)
       coderay (~> 1.0)
       method_source (~> 0.8)
       slop (~> 3.4)
-    rake (10.1.0)
-    slop (3.4.7)
+    rake (10.3.2)
+    slop (3.5.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
   docker-api
-  erubis
+  etcd
   minigit
   pry
   rake

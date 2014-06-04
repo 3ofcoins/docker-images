@@ -1,118 +1,125 @@
 require 'bundler/setup'
 
 require 'docker'
+require 'etcd'
 require 'minigit'
 
-ENV['INTERNAL_REGISTRY'] ||= ENV['REGISTRY'] || 'localhost:5000'
-ENV['PUBLIC_REGISTRY'] ||= ENV['REGISTRY'] || '3ofcoins'
-ENV['REGISTRY'] ||= 'localhost:5001'
-ENV['MAINTAINER'] ||= 'Maciej Pasternacki <maciej@3ofcoins.net>'
+$git = MiniGit::Capturing.new(__FILE__)
+$etcd = Etcd.client(
+  host: ENV['ETCD_HOST'] || '127.0.0.1',
+  port: (ENV['ETCD_PORT'] || 4001).to_i)
 
-if ENV['DOCKER_USERNAME'] || ENV['DOCKER_EMAIL'] || ENV['DOCKER_PASSWORD']
-  unless ENV['DOCKER_USERNAME'] && ENV['DOCKER_EMAIL'] && ENV['DOCKER_PASSWORD']
-    raise "Need all of DOCKER_USERNAME, DOCKER_EMAIL, DOCKER_PASSWORD"
-  end
-  puts "# Authenticating to the Docker index as #{ENV['DOCKER_USERNAME']}"
-  Docker.authenticate! 'username' => ENV['DOCKER_USERNAME'],
-                       'email' => ENV['DOCKER_EMAIL'],
-                       'password' => ENV['DOCKER_PASSWORD']
-else
-  Docker.creds = {}
-end
+ENV['ETCD_PREFIX'] ||= '/3ofcoins/docker-images'
+DOCKER_REBASE = File.join(Dir.getwd, 'script/docker-rebase.rb')
+GIT_BRANCH = $git.rev_parse({ abbrev_ref: true }, 'HEAD').strip
 
 class DockerImageTask < Rake::Task
-  include FileUtils
+  include Rake::FileUtilsExt    # for #sh
 
-  def initialize(*args)
+  PULL = Hash.new do |h, k|
+    h[k] = Rake::Task.define_task("docker:pull:#{k}") do
+      $stdout.write "Pulling #{k} ... "
+      $stdout.flush
+      image, tag = k.split(':')
+      tag ||= 'latest'
+      img = Docker::Image.create(fromImage: image, tag: tag)
+      $stdout.puts img.id
+    end
+  end
+
+  def initialize(*args, &block)
     super
-    enhance(&:build!)
-    repo_task = Rake::Task.define_task(repository => self)
-    repo_task.comment = tagged
-  end
-
-  def build!(task=nil)
-    puts "# Building #{self}"
-    if ENV['COMPILE']
-      Dir.chdir(name) do
-        sh "#{File.join(File.dirname(__FILE__), 'script/docker-compile.pl')} | tee compile.log"
-      end
-      iid = Array(File.read(File.join(name, 'compile.log')).lines).last
-      iid = iid.strip if iid
-      raise "Suspicious image ID #{iid.inspect}" unless iid =~ /^[0-9a-f]{6,128}$/
-      @image = Docker::Image.all.find { |img| img.id.start_with?(iid) }
-    else
-      @image = Docker::Image.build_from_dir(name)
-    end
-
-    if tag != ''
-      puts "# tag #{repository}:#{tag}"
-      image.tag('repo' => repository, 'tag' => tag)
-    end
-
-    puts "# tag #{repository}:latest"
-    image.tag('repo' => repository)
-
-    if ENV['COMPILE']
-      puts "# push #{repository}"
-      image.info['Repository'] = repository
-      image.push
-    end
-  end
-
-  def needed?
-    dirty? || !image
-  end
-
-  def image
-    @image ||= Docker::Image.all.find { |img| "#{img.info['Repository']}:#{img.info['Tag']}" == tagged }
-  end
-
-  def tag
-    @docker_tag ||= sha1
-  end
-
-  def registry
-    case name
-    when /^internal\// then ENV['INTERNAL_REGISTRY']
-    when /^public\//   then ENV['PUBLIC_REGISTRY']
-    else ENV['REGISTRY']
-    end
-  end
-
-  def repository
-    "#{registry}/#{File.basename(name)}"
-  end
-
-  def tagged
-    "#{repository}:#{tag}"
-  end
-
-  def dockerfile
-    "#{name}/Dockerfile"
+    enhance [ PULL[base_image_name] ], &:build!
   end
 
   def sha1
-    git.rev_list({max_count: 1}, 'HEAD', '--', name).strip
+    @sha1 ||= $git.rev_list({max_count: 1}, 'HEAD', '--', name).strip
   end
 
-  def dirty?
-    !git.status({porcelain: true}, name).empty?
+  def etcd_key
+    "#{ENV['ETCD_PREFIX']}/#{name}/built/sha1:#{sha1}"
   end
 
-  def git
-    @git ||= MiniGit::Capturing.new(name)
+  def image_name(tag=nil)
+    rv = "#{ENV['REGISTRY']}/#{File.basename(name)}"
+    rv << ":#{tag}" if tag
+    rv
   end
+
+  def tag!(*tags)
+    return unless ENV['REGISTRY']
+    tags = self.tags if tags.empty?
+    tags.each do |tag|
+      sh "docker tag #{image_id} #{image_name(tag)}"
+      sh "docker push #{image_name(tag)}"
+    end
+  end
+
+  def tags
+    @tags ||= begin
+                rv = dockerfile
+                  .map { |ln| ln =~ /^\s*\#\s*tag\s+/ && $'.split }
+                  .compact
+                  .flatten
+                rv << GIT_BRANCH
+                rv << 'latest' if GIT_BRANCH == 'master'
+                rv
+              end
+  end
+
+  def image_id
+    @image_id ||= $etcd.get(etcd_key).value
+  rescue Etcd::KeyNotFound
+    nil
+  end
+
+  def image
+    Docker::Image.get(image_id) if image_id
+  end
+
+  def save_id!
+    $etcd.set(etcd_key, value: image_id)
+  end
+
+  def dockerfile
+    @dockerfile ||= File.read(File.join(name, "Dockerfile"))
+      .lines
+      .map(&:strip)
+  end
+
+  def base_image_name
+    @base_image_name ||= dockerfile
+      .grep(/^\s*from\s/i)
+      .first
+      .sub(/^\s*from\s+/i, '')
+  end
+
+  def base_image
+    Docker::Image.get(base_image_name)
+  end
+
+  def needed?
+    image.nil? || image.info['parent'] != base_image.id
+  end
+
+  def build!(*)
+    sh "ruby #{DOCKER_REBASE}#{' --verbose' if ENV['VERBOSE']} --save-id=#{self}/.image_id --build #{self}"
+    @image_id = File.read("#{self}/.image_id")
+    tag!
+    save_id!
+  end
+end
+
+def docker_image(path, &block)
+  path = File.dirname(path) if File.basename(path) == 'Dockerfile'
+  desc "docker build #{path}"
+  DockerImageTask.define_task(path, &block)
 end
 
 desc 'All Docker images'
 task :images
 
-Dir['NOPE/internal/*/Dockerfile', 'public/*/Dockerfile'].each do |df|
-  deps = [ file(df) ]
-  from = File.read(df).lines.grep(/^\s*from\s+/i).first.strip.split(nil, 2)[1]
-  deps << from if from.start_with?(ENV['REGISTRY']) || from.start_with?(ENV['PUBLIC_REGISTRY'])
-  task :images => DockerImageTask.define_task(File::dirname(df) => file(df))
-end
+Dir['public/*/Dockerfile'].each { |df| task :images => docker_image(df) }
 
 task :pry do
   require 'pry'
