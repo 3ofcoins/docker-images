@@ -11,7 +11,8 @@ $etcd = Etcd.client(
 
 ENV['ETCD_PREFIX'] ||= '/3ofcoins/docker-images'
 DOCKER_REBASE = File.join(Dir.getwd, 'script/docker-rebase.rb')
-GIT_BRANCH = $git.rev_parse({ abbrev_ref: true }, 'HEAD').strip
+GIT_BRANCH = ENV['GIT_BRANCH'] ? ENV['GIT_BRANCH'].sub(/^origin\//, '') :
+  $git.rev_parse({ abbrev_ref: true }, 'HEAD').strip
 
 class DockerImageTask < Rake::Task
   include Rake::FileUtilsExt    # for #sh
