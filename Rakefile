@@ -59,7 +59,7 @@ class DockerImageTask < Rake::Task
   def tags
     @tags ||= begin
                 rv = dockerfile
-                  .map { |ln| ln =~ /^\s*\#\s*tag\s+/ && $'.split }
+                  .map { |ln| ln =~ /^\s*\#\s*tag\s+/i && $'.split }
                   .compact
                   .flatten
                 rv << GIT_BRANCH
