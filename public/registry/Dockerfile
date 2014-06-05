@@ -1,6 +1,6 @@
 # -*- conf -*-
 
-FROM registry
+FROM registry:latest
 MAINTAINER Maciej Pasternacki <maciej@pasternacki.net>
 
 RUN install -d -o nobody -g nogroup /registry
