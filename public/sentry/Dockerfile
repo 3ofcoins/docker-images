@@ -10,7 +10,7 @@ RUN apt-get install --yes python2.7 python2.7-dev postgresql-client-9.1 libpq-de
 
 # Virtualenv
 ADD https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.10.1.tar.gz /tmp/
-RUN tar -C /tmp -xzvf virtualenv-1.10.1.tar.gz && python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry
+RUN tar -C /tmp -xzvf /tmp/virtualenv-*.tar.gz && python2.7 /tmp/virtualenv-*/virtualenv.py /opt/sentry
 
 # Installation of Sentry
 RUN /opt/sentry/bin/pip install 'sentry[postgres]==6.4.4' hiredis nydus
