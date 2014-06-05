@@ -10,7 +10,7 @@ RUN apt-get install --yes python2.7 python2.7-dev postgresql-client-9.1 libpq-de
 
 # Virtualenv
 ADD https://pypi.python.org/packages/source/v/virtualenv/virtualenv-1.10.1.tar.gz /tmp/
-RUN python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry && rm -rf /tmp/virtualenv-1.10.1
+RUN tar -C /tmp -xzvf virtualenv-1.10.1.tar.gz && python2.7 /tmp/virtualenv-1.10.1/virtualenv.py /opt/sentry
 
 # Installation of Sentry
 RUN /opt/sentry/bin/pip install 'sentry[postgres]==6.4.4' hiredis nydus
@@ -24,7 +24,7 @@ ADD sentry /sentry
 
 # Cleanup
 RUN dpkg -l | awk '$2 ~ /-dev$/ { print $2 }' | xargs apt-get purge --yes cpp gcc binutils manpages
-RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+RUN rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/* /tmp/*
 
 EXPOSE 9000
 ENTRYPOINT [ "/sentry" ]
