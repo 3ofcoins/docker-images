@@ -4,6 +4,7 @@ FROM 3ofcoins/nodejs
 MAINTAINER Maciej Pasternacki <maciej@3ofcoins.net>
 
 ADD https://github.com/etsy/statsd/archive/v0.7.1.tar.gz /opt/
+RUN tar -C /opt -xzvf /opt/v0.7.1.tar.gz && rm /opt/v0.7.1.tar.gz
 ADD config.js /opt/statsd-0.7.1/
 
 EXPOSE  8125/udp
