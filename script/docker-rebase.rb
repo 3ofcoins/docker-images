@@ -64,8 +64,8 @@ else
   final, base = ARGV
 end
 
-final_id = `docker inspect --format '{{or .id .Id}}' #{final}`.strip
-base_id = `docker inspect --format '{{or .id .Id}}' #{base}`.strip
+final_id = `docker inspect --format '{{or .Id .id}}' #{final}`.strip
+base_id = `docker inspect --format '{{or .Id .id}}' #{base}`.strip
 
 puts "Rebasing #{final} (#{final_id}) onto #{base} (#{base_id})"
 
@@ -129,7 +129,6 @@ Dir.mktmpdir 'docker-rebase' do |workdir|
       final_size += File.size(path) if File.file?(path)
     end
 
-    # Dir.entries('.') - ['.', '..']
     sh "#{tar '-C _destroot -c .'} > #{final_id}/layer.tar"
     FileUtils.rm_rf '_destroot', verbose: $verbose
 
@@ -138,7 +137,7 @@ Dir.mktmpdir 'docker-rebase' do |workdir|
       FileUtils.rm_rf meta['id'] || meta['Id'], verbose: $verbose
     end
 
-    final_meta['Size'] = final_size
+    final_meta[ 'Size' ] = final_size
     final_meta[ final_meta.keys.grep(/parent/i).first ] = base_id
     ( final_meta['ContainerConfig'] || final_meta['container_config'] )['Cmd'] = [
       '/bin/sh', '-c', "#(nop) #{options[:description]}"
