@@ -64,8 +64,8 @@ else
   final, base = ARGV
 end
 
-final_id = `docker inspect --format '{{.id}}' #{final}`.strip
-base_id = `docker inspect --format '{{.id}}' #{base}`.strip
+final_id = `docker inspect --format '{{or .Id .id}}' #{final}`.strip
+base_id = `docker inspect --format '{{or .Id .id}}' #{base}`.strip
 
 puts "Rebasing #{final} (#{final_id}) onto #{base} (#{base_id})"
 
@@ -83,7 +83,7 @@ end
 
 Dir.mktmpdir 'docker-rebase' do |workdir|
   Dir.chdir workdir do
-    sh "docker save #{final} | #{tar '-x'}"
+    sh "docker save #{final_id} | #{tar '-x'}"
 
     meta = Hash[
       Dir['*/json']
@@ -94,19 +94,21 @@ Dir.mktmpdir 'docker-rebase' do |workdir|
     seen_base = false
     ancestry = []
 
-    while cur do
+    while cur && cur != "" do
       if seen_base || cur == base_id
-        cur = meta.delete(cur)['parent']
+        _ = meta.delete(cur)
+        cur = _['parent'] || _['Parent']
         seen_base = true
       else
         ancestry << meta.delete(cur)
-        cur = ancestry.last['parent']
+        _ = ancestry.last
+        cur = _['parent'] || _['Parent']
       end
     end
 
     FileUtils.mkdir '_destroot'
     ancestry.reverse.each do |stage|
-      removals = `tar -C _destroot -xvf #{stage['id']}/layer.tar`
+      removals = `tar -C _destroot -xvf #{stage['id'] || stage['Id']}/layer.tar`
         .lines
         .map(&:strip)
         .select { |path| File.basename(path) =~ /^\.wh\.(?!\.wh\.)/ }
@@ -127,18 +129,17 @@ Dir.mktmpdir 'docker-rebase' do |workdir|
       final_size += File.size(path) if File.file?(path)
     end
 
-    # Dir.entries('.') - ['.', '..']
     sh "#{tar '-C _destroot -c .'} > #{final_id}/layer.tar"
     FileUtils.rm_rf '_destroot', verbose: $verbose
 
     final_meta = ancestry.shift
     ancestry.each do |meta|
-      FileUtils.rm_rf meta['id'], verbose: $verbose
+      FileUtils.rm_rf meta['id'] || meta['Id'], verbose: $verbose
     end
 
-    final_meta['Size'] = final_size
-    final_meta['parent'] = base_id
-    final_meta['container_config']['Cmd'] = [
+    final_meta[ 'Size' ] = final_size
+    final_meta[ final_meta.keys.grep(/parent/i).first ] = base_id
+    ( final_meta['ContainerConfig'] || final_meta['container_config'] )['Cmd'] = [
       '/bin/sh', '-c', "#(nop) #{options[:description]}"
     ]
 
