@@ -51,7 +51,7 @@ class DockerImageTask < Rake::Task
     return unless ENV['REGISTRY']
     tags = self.tags if tags.empty?
     tags.each do |tag|
-      sh "docker tag #{image_id} #{image_name(tag)}"
+      sh "docker tag -f #{image_id} #{image_name(tag)}"
       sh "docker push #{image_name(tag)}"
     end
   end
