@@ -37,7 +37,7 @@ chown root:sentry /var/opt/sentry/secret
 chmod 0640 /var/opt/sentry/secret
 
 sentry () {
-    chpst -u sentry /opt/sentry/bin/sentry --config=/etc/sentry/settings.py "${@}"
+    flock -x /var/opt/sentry/sentry.$1.lock chpst -u sentry /opt/sentry/bin/sentry --config=/etc/sentry/settings.py "${@}"
 }
 
 sentry upgrade --noinput
