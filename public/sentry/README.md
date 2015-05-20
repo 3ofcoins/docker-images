@@ -24,21 +24,17 @@ Environment variables
 Linked Containers
 -----------------
 
+A linked container named `redis` should be created. It will be used
+for Celery task queue and for buffers. Alternatively, you can provide
+environment variable `REDIS_PORT="tcp://HOST:PORT"`.
+
 If a linked container named `postgresql` is provided, its IP & port
 will be used as `PGHOST` & `PGPORT` (remaining postgres variables will
 be normally interpreted).
-
-If a linked container named `memcache` exists, it will be used as
-cache. Alternatively, you can provide environment variable
-`MEMCACHE_PORT="tcp://HOST:PORT"`.
-
-If a linked container named `redis` exists, it will be used for Celery
-task queue and for buffers. Alternatively, you can provide environment
-variable `REDIS_PORT="tcp://HOST:PORT"`.
 
 Running
 -------
 
 The `sentry` command is configured as the entry point, so simply
-running `docker run mpasternacki/sentry server` will start the Web
+running `docker run 3ofcoins/sentry server` will start the Web
 server.

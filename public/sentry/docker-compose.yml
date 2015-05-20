@@ -1,0 +1,30 @@
+# Example docker-compose configuration for Sentry
+
+postgres:
+  image: postgres:9
+
+redis:
+  image: 3ofcoins/redis:3.0.1
+
+web: &web
+  build: .
+  links:
+    - postgres
+    - redis
+  ports:
+    - "0.0.0.0:9000:9000"
+  environment:
+    ADMIN_EMAIL: admin@example.com
+    SENTRY_URL_PREFIX: http://sentry.example.com
+
+worker:
+  build: .
+  links:
+    - postgres
+    - redis
+  ports:
+    - "0.0.0.0:9000:9000"
+  environment:
+    ADMIN_EMAIL: admin@example.com
+    SENTRY_URL_PREFIX: http://sentry.example.com
+  command: celery worker -B -l WARNING --concurrency=3

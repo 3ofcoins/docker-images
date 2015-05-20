@@ -32,9 +32,9 @@ if [ "$1" = "pg_dump" ] ; then
     exec pg_dump "${@}"
 fi
 
-[ -f /etc/sentry/secret ] || openssl rand -base64 64 | tr -d \\n > /etc/sentry/secret
-chown root:sentry /etc/sentry/secret
-chmod 0640 /etc/sentry/secret
+[ -f /var/opt/sentry/secret ] || openssl rand -base64 64 | tr -d \\n > /var/opt/sentry/secret
+chown root:sentry /var/opt/sentry/secret
+chmod 0640 /var/opt/sentry/secret
 
 sentry () {
     chpst -u sentry /opt/sentry/bin/sentry --config=/etc/sentry/settings.py "${@}"
